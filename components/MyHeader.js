@@ -1,53 +1,58 @@
 import React, { Component} from 'react';
 import { Header,Icon,Badge } from 'react-native-elements';
 import { View, Text, StyeSheet ,Alert} from 'react-native';
-import db from '../config'
+import db from '../config';
+import firebase from 'firebase';
 
 export default class MyHeader extends Component{
   constructor(props){
-    super(props)
+    super(props);
     this.state={
-      value:""
+      value='',
     }
   }
+}
 
-getNumberOfUnreadNotifications(){
-  db.collection('all_notifications').where('notification_status','==',"unread")
-  .onSnapshot((snapshot)=>{
-    var unreadNotifications = snapshot.docs.map((doc) => doc.data())
-    this.setState({
-      value: unreadNotifications.length
-    })
+getNumberOfUnreadNotifications=()=>{
+  db.colletion('all_notifications')
+  .where('notifications_stauts','==','unread')
+  .onSnapShot((snapShot)=>{
+    var unreadNotificatins=snapShot.doc.map(doc=>{doc.data()})
+  })
+  this.setState({
+    value:unreadNotificatins.length
   })
 }
 
-componentDidMount(){
-  this.getNumberOfUnreadNotifications()
+const BellIconWithBadge=(props)=>{
+  return(
+    <View style={styles.container}>
+      <Icon name='bell' type='font-awesome' color='blue' size={25}
+      onPress={()=>{props.navigation.navigate('Notification')}}/>
+      <Badge value={this.state.value} containerStyle={{position:'absolute' , top:-4 , right:-4}}/>
+    </View>
+  )
 }
 
+const MyHeader = props => {
+  return (
+    <Header
+    leftComponent={<Icon name="bars" type="font-awesome" color="blue" 
+    onPress={()=>{props.navigation.toggleDrawer()}}/>}
+      centerComponent={{ text: props.title, style: { color: '#90A5A9', fontSize:20,fontWeight:"bold", } }}
+      rightComponent={<BellIconWithBadge {...props}></BellIconWithBadge>}
+      backgroundColor = "#eaf8fe"
+    />
+  );
+};
 
- BellIconWithBadge=()=>{
-    return(
-      <View>
-        <Icon name='bell' type='font-awesome' color='#696969' size={25}
-          onPress={() =>this.props.navigation.navigate('Notification')}/>
-         <Badge
-          value={this.state.value}
-         containerStyle={{ position: 'absolute', top: -4, right: -4 }}/>
-      </View>
-    )
-  }
+const styles = StyleSheet.create({
+  container:{
+   flex:1,
+   backgroundColor:'#F8BE85',
+   alignItems: 'center',
+   justifyContent: 'center'
+ },
+})
 
-  render(){
-    return(
-        <Header
-          leftComponent={<Icon name='bars' type='font-awesome' color='#696969'  onPress={() => this.props.navigation.toggleDrawer()}/>}
-          centerComponent={{ text: this.props.title, style: { color: '#90A5A9', fontSize:20,fontWeight:"bold", } }}
-          rightComponent={<this.BellIconWithBadge {...this.props}/>}
-          backgroundColor = "#eaf8fe"
-        />
-
-)
-}
-
-}
+export default MyHeader;
